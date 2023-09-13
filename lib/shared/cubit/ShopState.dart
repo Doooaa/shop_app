@@ -1,9 +1,7 @@
+import 'package:shop_app/models/categoriesModel.dart';
+import 'package:shop_app/models/favoritesModel.dart';
 import 'package:shop_app/models/homeModel.dart';
 import 'package:shop_app/models/loginModel.dart';
-import 'package:shop_app/models/favoritesModel.dart';
-import 'package:shop_app/models/categoriesModel.dart';
-import 'package:shop_app/shared/cubit/ShopCubit.dart';
-import 'package:shop_app/models/getFavoritesModel.dart';
 
 abstract class shopState {}
 
@@ -65,15 +63,13 @@ class ChangeToFavoritesErrorState extends shopState {
 //............................get favorites
 class GetFavoritesLoadingState extends shopState {}
 
-class GetFavoritesSuccessState extends shopState {
-  GetFavoritesModel model;
-  GetFavoritesSuccessState(this.model);
-}
+class GetFavoritesSuccessState extends shopState {}
 
 class GetFavoritesErrorState extends shopState {
   final String error;
   GetFavoritesErrorState(this.error);
 }
+
 //user data states
 class GetUserLoadingState extends shopState {}
 
@@ -86,20 +82,18 @@ class GetUserErrorState extends shopState {
   final String error;
   GetUserErrorState(this.error);
 }
+
 //user data states
 class RegisterLoadingState extends shopState {}
 
 class RegisterSuccessState extends shopState {
-   loginModel? model;
-   RegisterSuccessState(this.model);
-
-  
+  LoginModel? model;
+  RegisterSuccessState(this.model);
 }
 
 class RegisterErrorState extends shopState {
   final String error;
   RegisterErrorState(this.error);
 }
-   class RsgisterVisiablityIconState extends shopState{}
 
-
+class RsgisterVisiablityIconState extends shopState {}

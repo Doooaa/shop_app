@@ -1,59 +1,61 @@
-import 'package:shop_app/main.dart';
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shop_app/shared/SharedWidget.dart';
+import 'package:shop_app/homeLayout/shopLayout(home).dart';
+import 'package:shop_app/main.dart';
 import 'package:shop_app/shared/cubit/ShopCubit.dart';
 import 'package:shop_app/shared/cubit/ShopState.dart';
-import 'package:shop_app/shared/styles/constColors.dart';
-import 'package:shop_app/homeLayout/shopLayout(home).dart';
 import 'package:shop_app/shared/network/local/sharedPref.dart';
-import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:shop_app/shared/styles/constColors.dart';
+
+import '../widgets/snack_bar_widgets.dart';
 
 class RegisterScreen extends StatelessWidget {
+  RegisterScreen({super.key});
+  GlobalKey<FormState> formstate = GlobalKey<FormState>();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController phoneContriller = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    GlobalKey<FormState> formstate = GlobalKey<FormState>();
-    var emailController = TextEditingController();
-    var passwordController = TextEditingController();
-    var phoneContriller = TextEditingController();
-    var nameController = TextEditingController();
-
     return BlocConsumer<shopCubit, shopState>(
       listener: (context, state) {
         if (state is RegisterSuccessState) {
           if (state.model!.status == false) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.red[900],
-                content: Text(
-                  state.model!.message.toString(),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
-                )));
+            showSnackBar(
+              context,
+              message: state.model!.message.toString(),
+              snackColor: const Color(0xFFB71C1C),
+            );
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: baseColor,
-                content: Text(
-                  state.model!.message.toString(),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
-                )));
-            CachHelper.Savedata(key: 'token', value: state.model?.data!.token).then((value) {
-              token= state.model?.data!.token;
-              print('from register token value is :'+value.toString());
-              print('from register token from model is :'+  token.toString());
-
-              navigateToScreen(context, ShopLayout());
-            },);
-            
+            showSnackBar(
+              context,
+              message: state.model!.message.toString(),
+              snackColor: baseColor,
+            );
+            CachHelper.Savedata(key: 'token', value: state.model?.data!.token)
+                .then(
+              (value) {
+                token = state.model?.data!.token;
+                print('from register token value is :$value');
+                print('from register token from model is :$token');
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ShopLayout(),
+                  ),
+                  (route) => false,
+                );
+                // navigateToScreen(context, const ShopLayout());
+              },
+            );
           }
         }
       },
       builder: (context, state) {
-        var cubit = shopCubit.get(context);
+        shopCubit cubit = shopCubit.get(context);
         return Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.transparent,
@@ -92,7 +94,7 @@ class RegisterScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(15.0)),
                             hintText: "name",
                             hintStyle: const TextStyle(fontSize: 20),
-                            prefixIcon: Icon(Icons.person, size: 25),
+                            prefixIcon: const Icon(Icons.person, size: 25),
                           ),
                           validator: (String? value) =>
                               validation(value, "Please enter your name")),
@@ -108,7 +110,7 @@ class RegisterScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(15.0)),
                             hintText: "phone",
                             hintStyle: const TextStyle(fontSize: 20),
-                            prefixIcon: Icon(Icons.phone, size: 25),
+                            prefixIcon: const Icon(Icons.phone, size: 25),
                           ),
                           validator: (String? value) =>
                               validation(value, "Please enter your phone")),
@@ -124,7 +126,8 @@ class RegisterScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(15.0)),
                             hintText: "Email",
                             hintStyle: const TextStyle(fontSize: 20),
-                            prefixIcon: Icon(Icons.email_outlined, size: 25),
+                            prefixIcon:
+                                const Icon(Icons.email_outlined, size: 25),
                           ),
                           validator: (String? value) =>
                               validation(value, "Please enter your email")),
@@ -132,7 +135,7 @@ class RegisterScreen extends StatelessWidget {
                         height: 15,
                       ),
                       TextFormField(
-                         obscureText: cubit.isvisiable,
+                        obscureText: cubit.isvisiable,
                         controller: passwordController,
                         validator: (String? value) =>
                             validation(value, "Please enter your password"),
@@ -142,7 +145,7 @@ class RegisterScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(15.0)),
                             hintText: "Password",
                             hintStyle: const TextStyle(fontSize: 20),
-                            prefixIcon: Icon(Icons.lock, size: 25),
+                            prefixIcon: const Icon(Icons.lock, size: 25),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 cubit.ChangeVisiablityIcon();
@@ -150,21 +153,19 @@ class RegisterScreen extends StatelessWidget {
                               icon: Icon(shopCubit.get(context).icon, size: 25),
                             )),
                         onFieldSubmitted: (value) {
-                          cubit.postRegiserData(null,
-                              name: nameController.text,
-                              phone: phoneContriller.text,
-                              email: emailController.text,
-                              password: passwordController.text);
+                          // cubit.postRegiserData(null,
+                          //     name: nameController.text,
+                          //     phone: phoneContriller.text,
+                          //     email: emailController.text,
+                          //     password: passwordController.text);
                         },
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
+                      const SizedBox(height: 20),
                       ConditionalBuilder(
                         fallback: (context) =>
                             const Center(child: CircularProgressIndicator()),
                         builder: (BuildContext context) {
-                          return Container(
+                          return SizedBox(
                             height: 50,
                             width: 450,
                             child: ElevatedButton(
@@ -173,11 +174,13 @@ class RegisterScreen extends StatelessWidget {
                               onPressed: () {
                                 // Validate the form
                                 if (formstate.currentState!.validate()) {}
-                                cubit.postRegiserData(null,
-                                    name: nameController.text,
-                                    phone: phoneContriller.text,
-                                    email: emailController.text,
-                                    password: passwordController.text);
+                                cubit.postRegiserData(
+                                  "",
+                                  name: nameController.text,
+                                  phone: phoneContriller.text,
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                );
                                 print(emailController.text +
                                     passwordController.text);
                               },
@@ -200,6 +203,7 @@ class RegisterScreen extends StatelessWidget {
 validation(String? value, String AlertTxet) {
   if (value == null || value.isEmpty) {
     return AlertTxet;
-  } else
+  } else {
     return null;
+  }
 }

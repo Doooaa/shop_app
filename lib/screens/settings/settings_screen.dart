@@ -1,13 +1,14 @@
-import 'package:shop_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shop_app/main.dart';
 import 'package:shop_app/models/loginModel.dart';
 import 'package:shop_app/screens/login/login.dart';
 import 'package:shop_app/shared/SharedWidget.dart';
+import 'package:shop_app/shared/constant.dart';
 import 'package:shop_app/shared/cubit/ShopCubit.dart';
 import 'package:shop_app/shared/cubit/ShopState.dart';
-import 'package:shop_app/shared/styles/constColors.dart';
 import 'package:shop_app/shared/network/local/sharedPref.dart';
+import 'package:shop_app/shared/styles/constColors.dart';
 
 class settings_screen extends StatelessWidget {
   const settings_screen({super.key});
@@ -17,18 +18,16 @@ class settings_screen extends StatelessWidget {
     UserModel? userModel;
     return BlocConsumer<shopCubit, shopState>(listener: (context, state) {
       if (state is GetUserSuccessState) {
-           
-          userModel = shopCubit.get(context).userModel!.data!;
-          print("run am poor "+userModel!.name.toString());
+        userModel = CURRENT_USER.data;
+        print("run am poor ${userModel!.name}");
       }
     }, builder: (context, state) {
-    
-      userModel = shopCubit.get(context).userModel!.data!;
-          print("run am poor "+userModel!.name.toString());
+      userModel = CURRENT_USER.data;
+      print("run am poor ${userModel!.name}");
       return Scaffold(
           body: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: ListView(physics: BouncingScrollPhysics(), children: [
+        child: ListView(physics: const BouncingScrollPhysics(), children: [
           Text(
             ' Account',
             style: Theme.of(context)
@@ -44,10 +43,11 @@ class settings_screen extends StatelessWidget {
                 height: 100,
               ),
               Expanded(
-                child: Container(
+                child: SizedBox(
                   height: 100,
                   width: 50,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
@@ -62,7 +62,7 @@ class settings_screen extends StatelessWidget {
                       ),
                       Expanded(
                         child: Text(
-                          'token is ${token}',
+                          'token is $token',
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium!
@@ -96,7 +96,7 @@ class settings_screen extends StatelessWidget {
               )
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 4,
           ),
           Container(
@@ -114,18 +114,18 @@ class settings_screen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 4,
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: baseColor),
             onPressed: () {
               CachHelper.removeKey(key: 'token').then((value) {
-                print("is theeeeeeeeee remove token" +
-                    CachHelper.getdata(key: 'token').toString());
-                print("is theeeeeeeeee remove token" + token.toString());
+                print(
+                    "is theeeeeeeeee remove token${CachHelper.getdata(key: 'token')}");
+                print("is theeeeeeeeee remove token$token");
                 token = "";
-                print("is theeeeeeeeee remove token" + token.toString());
+                print("is theeeeeeeeee remove token$token");
                 navigateandFinish(context, Login());
                 shopCubit.get(context).currentIndex = 0;
               });
