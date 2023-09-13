@@ -1,14 +1,12 @@
-import 'package:shop_app/main.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shop_app/models/homeModel.dart';
-import 'package:shop_app/models/categoriesModel.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shop_app/models/categoriesModel.dart';
+import 'package:shop_app/models/homeModel.dart';
 import 'package:shop_app/shared/cubit/ShopCubit.dart';
 import 'package:shop_app/shared/cubit/ShopState.dart';
 import 'package:shop_app/shared/styles/constColors.dart';
-import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 //single
 
 class produts_screen extends StatelessWidget {
@@ -50,7 +48,8 @@ class produts_screen extends StatelessWidget {
             condition: homeModel != null,
             builder: (context) =>
                 productsBuilder(context, homeModel!, categoriesModel!, cubit),
-            fallback: (context) => Center(child: CircularProgressIndicator()));
+            fallback: (context) =>
+                const Center(child: CircularProgressIndicator()));
         // Center(child: Text('produts screen')),
       },
     );
@@ -59,7 +58,7 @@ class produts_screen extends StatelessWidget {
   Widget productsBuilder(context, MyHomeModel homeModel,
       CategoriesModel categoriesModel, shopCubit cubit) {
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(), // oonscrolling bouncing :🏄‍♀️
+      physics: const BouncingScrollPhysics(), // oonscrolling bouncing :🏄‍♀️
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -68,7 +67,7 @@ class produts_screen extends StatelessWidget {
                   // 1-items type ==list ✅
                   // 2-loop on banner list contain map to get image from it "banners.map((e)"✅
                   // 3-convert image to list  ✅
-                  homeModel!.data.banners
+                  homeModel.data.banners
                       .map((e) => Image(
                             image: NetworkImage(e.image.toString()),
                             fit: BoxFit.cover,
@@ -99,17 +98,17 @@ class produts_screen extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                Container(
+                SizedBox(
                   height:
                       120, // it doesn't work with singlechild if havn't size so we use container
                   child: ListView.separated(
-                      physics: BouncingScrollPhysics(),
+                      physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
                         var category = categoriesModel.data[index];
                         return CategoryItemBuilder(context, category);
                       },
-                      separatorBuilder: (context, index) => SizedBox(
+                      separatorBuilder: (context, index) => const SizedBox(
                             width: 10,
                           ),
                       itemCount: categoriesModel.data.length),
@@ -139,8 +138,8 @@ class produts_screen extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
               children: List.generate(homeModel.data.banners.length, (index) {
-                var _product = homeModel.data.products[index];
-                return BuildgridviewItem(_product, context, cubit);
+                var product = homeModel.data.products[index];
+                return BuildgridviewItem(product, context, cubit);
               }),
             ),
           )
@@ -149,8 +148,7 @@ class produts_screen extends StatelessWidget {
     );
   }
 
-  Container BuildgridviewItem(
-      ProductsModel _product, context, shopCubit cubit) {
+  Container BuildgridviewItem(ProductsModel product, context, shopCubit cubit) {
     return Container(
       color: Colors.white,
       child: Column(
@@ -160,14 +158,14 @@ class produts_screen extends StatelessWidget {
             alignment: Alignment.bottomLeft,
             children: [
               Image(
-                image: NetworkImage(_product.image.toString()),
+                image: NetworkImage(product.image.toString()),
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.25,
               ),
-              if (_product.discount != 0)
+              if (product.discount != 0)
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5),
-                  color: Color.fromARGB(255, 219, 65, 30),
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  color: const Color.fromARGB(255, 219, 65, 30),
                   child: const Text(
                     'Discount',
                     style: TextStyle(color: Colors.white, fontSize: 16),
@@ -181,7 +179,7 @@ class produts_screen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(_product.name.toString(),
+                Text(product.name.toString(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     //textAlign: TextAlign.center,
@@ -195,15 +193,15 @@ class produts_screen extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      _product.price.round().toString(),
+                      product.price.round().toString(),
                       style: TextStyle(color: baseColor, fontSize: 14),
                     ),
                     const SizedBox(
                       width: 15,
                     ),
-                    if (_product.discount != 0)
+                    if (product.discount != 0)
                       Text(
-                        _product.old_price.round().toString(),
+                        product.old_price.round().toString(),
                         style: const TextStyle(
                           color: Color.fromARGB(255, 77, 98, 109),
                           fontSize: 12,
@@ -218,13 +216,13 @@ class produts_screen extends StatelessWidget {
                           onPressed: () {
                             print("fav clicked!");
 
-                            cubit.ChangeToFavorites(productId: _product.id);
+                            cubit.ChangeToFavorites(productId: product.id!);
                             // print();
                           },
                           icon: Icon(
                             Icons.favorite,
-                            color: (cubit.favoriteMap[_product.id]!)
-                                ? Color.fromARGB(255, 219, 65, 30)
+                            color: (cubit.favoriteMap[product.id]!)
+                                ? const Color.fromARGB(255, 219, 65, 30)
                                 : Colors.white,
                             size: 18,
                           )),
@@ -251,10 +249,10 @@ class produts_screen extends StatelessWidget {
           width: 120,
           height: 25,
           alignment: Alignment.center,
-          color:baseColor,
+          color: baseColor,
           child: Text(
             category.name.toString(),
-            style: TextStyle(
+            style: const TextStyle(
                 overflow: TextOverflow.ellipsis,
                 color: Colors.white,
                 fontSize: 18),

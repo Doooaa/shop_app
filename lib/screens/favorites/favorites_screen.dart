@@ -26,13 +26,7 @@ class favorites_screen extends StatelessWidget {
                       const SizedBox(height: 1),
                   itemCount: cubit.getAllFavorite.length,
                 )
-              : Center(
-                  child: TextButton(
-                      onPressed: () {
-                        cubit.getFavoritesData();
-                      },
-                      child: const Text("No Favorites")),
-                ),
+              : const Center(child: Text("No Favorites")),
         );
       },
     );
@@ -86,7 +80,7 @@ class favorites_screen extends StatelessWidget {
                 children: [
                   Text(
                       //_product.name.toString(),
-                      model.product.name.toString(),
+                      model.product.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       //textAlign: TextAlign.center,
@@ -99,7 +93,7 @@ class favorites_screen extends StatelessWidget {
                     child: Row(
                       children: [
                         Text(
-                          model.product.price.round().toString(),
+                          model.product.price.toString(),
                           style: TextStyle(color: baseColor, fontSize: 14),
                         ),
                         const SizedBox(
@@ -107,7 +101,7 @@ class favorites_screen extends StatelessWidget {
                         ),
                         if (1 != 0)
                           Text(
-                            model.product.oldPrice.round().toString(),
+                            model.product.oldPrice.toString(),
                             style: const TextStyle(
                               color: Color.fromARGB(255, 77, 98, 109),
                               fontSize: 12,

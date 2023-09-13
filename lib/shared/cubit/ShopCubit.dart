@@ -98,9 +98,9 @@ class shopCubit extends Cubit<shopState> {
   }
 
   FavoritesModel? favoritesModel;
-  void ChangeToFavorites({required productId}) {
+  void ChangeToFavorites({required int productId}) {
     // تغير لحظي والحقيقي بيحصل في الباك جراوند
-    favoriteMap[productId!] = !favoriteMap[productId]!;
+    favoriteMap[productId] = !favoriteMap[productId]!;
     emit(ChangeToFavoritesState()); //emit 3shaan y7sl intime!
     dio_helper
         .postData(
@@ -130,6 +130,7 @@ class shopCubit extends Cubit<shopState> {
     emit(GetUserLoadingState());
     dio_helper.getData(url: 'favorites', token: token).then((value) {
       print("📍 the value is ${value!.data}");
+      getAllFavorite.clear();
       value.data['data']['data'].forEach((element) {
         getAllFavorite.add(FavoriteModel.fromjson(element));
       });
