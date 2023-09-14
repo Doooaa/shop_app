@@ -1,11 +1,16 @@
-class loginModel {
+class LoginModel {
   bool? status;
   String? message;
   UserModel? data;
-  loginModel.fromjason(Map<String, dynamic> json) {
+  LoginModel({
+    this.status,
+    this.message,
+    this.data,
+  });
+  LoginModel.fromjason(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data']!=null?  UserModel.Fromjson(json['data'])  : null;
+    data = json['data'] != null ? UserModel.Fromjson(json['data']) : null;
   }
 }
 
@@ -19,7 +24,6 @@ class UserModel {
   int? credit;
   String? token;
 
-  
   //named constructor "with any name" and delete ordinary constructor
   UserModel.Fromjson(Map<String, dynamic> jsondata) {
     id = jsondata['id'];

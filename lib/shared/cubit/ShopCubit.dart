@@ -1,28 +1,23 @@
-import 'dart:ffi';
-import 'package:bloc/bloc.dart';
-import 'package:shop_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shop_app/models/homeModel.dart';
-import 'package:shop_app/models/loginModel.dart';
-import 'package:shop_app/screens/login/login.dart';
-import 'package:shop_app/shared/SharedWidget.dart';
-import 'package:shop_app/models/favoritesModel.dart';
+import 'package:shop_app/main.dart';
 import 'package:shop_app/models/categoriesModel.dart';
-import 'package:shop_app/shared/cubit/ShopState.dart';
-import 'package:shop_app/models/getFavoritesModel.dart';
-import 'package:shop_app/screens/home/shopHome_screen.dart';
-import 'package:shop_app/shared/network/remote/endpoint.dart';
-import 'package:shop_app/shared/network/local/sharedPref.dart';
-import 'package:shop_app/shared/network/remote/Dio_helper.dart';
+import 'package:shop_app/models/favoritesModel.dart';
+import 'package:shop_app/models/get_favorites_model.dart';
+import 'package:shop_app/models/homeModel.dart';
+import 'package:shop_app/screens/categories/categories_screen.dart';
+import 'package:shop_app/screens/favorites/favorites_screen.dart';
 import 'package:shop_app/screens/products/products_screen.dart';
 import 'package:shop_app/screens/settings/settings_screen.dart';
-import 'package:shop_app/screens/favorites/favorites_screen.dart';
-import 'package:shop_app/screens/categories/categories_screen.dart';
+import 'package:shop_app/shared/constant.dart';
+import 'package:shop_app/shared/cubit/ShopState.dart';
+import 'package:shop_app/shared/network/remote/Dio_helper.dart';
+import 'package:shop_app/shared/network/remote/endpoint.dart';
+
+import '../../models/loginModel.dart';
 
 class shopCubit extends Cubit<shopState> {
   shopCubit() : super(shopInitialState());
-  // get instance of shop cubit
   static shopCubit get(context) => BlocProvider.of(context);
   List<BottomNavigationBarItem> BottomNavItems = const [
     BottomNavigationBarItem(
@@ -71,9 +66,7 @@ class shopCubit extends Cubit<shopState> {
       homeModel = MyHomeModel.fromJson(value!.data);
       //from model  can access to anything in it 💥
       homeModel!.data.products.forEach(((e) {
-    
-          favoriteMap.addAll(Map<int, bool>.from({e.id: e.in_favorites}));
-        
+        favoriteMap.addAll(Map<int, bool>.from({e.id: e.in_favorites}));
       }));
       // for(int i=0;i<homeModel!.data.products.length;i++){
       //    favoriteMap.addAll(Map<int, bool>
@@ -105,9 +98,9 @@ class shopCubit extends Cubit<shopState> {
   }
 
   FavoritesModel? favoritesModel;
-  void ChangeToFavorites({required  productId}) {
+  void ChangeToFavorites({required int productId}) {
     // تغير لحظي والحقيقي بيحصل في الباك جراوند
-    favoriteMap[productId!] = !favoriteMap[productId]!;
+    favoriteMap[productId] = !favoriteMap[productId]!;
     emit(ChangeToFavoritesState()); //emit 3shaan y7sl intime!
     dio_helper
         .postData(
@@ -132,59 +125,42 @@ class shopCubit extends Cubit<shopState> {
     });
   }
 
-  GetFavoritesModel? getFavoritesModel;
-  getFavoritesData() {
+  List<FavoriteModel> getAllFavorite = [];
+  void getFavoritesData() {
     emit(GetUserLoadingState());
-
-    dio_helper
-        .getData(
-      url: 'favorites',
-      token: token,
-    )
-        .then((value) {
-  
-      getFavoritesModel = GetFavoritesModel.fromJson(value!.data);
-      print("getfavmode");
-       print(value!.data);
-      print("getfavmode");
-     
-     
-       print("fav data get fuc ${token}");
-
-      
-      emit(GetFavoritesSuccessState(getFavoritesModel!));
+    dio_helper.getData(url: 'favorites', token: token).then((value) {
+      print("📍 the value is ${value!.data}");
+      getAllFavorite.clear();
+      value.data['data']['data'].forEach((element) {
+        getAllFavorite.add(FavoriteModel.fromjson(element));
+      });
+      emit(GetFavoritesSuccessState());
     }).catchError((e) {
       print(e.toString());
       emit(GetFavoritesErrorState(e.toString()));
     });
   }
 
-  loginModel? userModel;
- 
-  getUserData() {
+  void getUserData() {
     emit(GetUserLoadingState());
-
-    dio_helper
-        .getData(
-      url: PROFILE,
-      token: token,
-    )
-        .then((value) {
+    dio_helper.getData(url: PROFILE, token: token).then((value) {
       print(value!.data);
-        
-      //UserModel = UserModel.fromJson(value!.data);
-      userModel = loginModel.fromjason(value.data);
-      print('userdata is token is'+token.toString());
-      emit(GetUserSuccessState(userModel!.data!));
+      CURRENT_USER = LoginModel.fromjason(value.data);
+      print('userdata is token is$token');
+      emit(GetUserSuccessState(CURRENT_USER.data!));
     }).catchError((e) {
       print(e.toString());
       emit(GetUserErrorState(e.toString()));
     });
   }
 
-  loginModel? LoginModel;
-  postRegiserData(image,
-      {required name, required phone, required email, required password}) {
+  void postRegiserData(
+    String image, {
+    required String name,
+    required String phone,
+    required String email,
+    required String password,
+  }) {
     emit(RegisterLoadingState());
     dio_helper.postData(url: REGISTER, data: {
       'name': name,
@@ -193,31 +169,28 @@ class shopCubit extends Cubit<shopState> {
       'password': password,
       'image': image,
     }).then((value) {
-    print(token);
-      LoginModel = loginModel.fromjason(value!.data);
-        print(token);
-      emit(RegisterSuccessState(LoginModel));
+      print(token);
+      CURRENT_USER = LoginModel.fromjason(value!.data);
+      print(token);
+      emit(RegisterSuccessState(CURRENT_USER));
     }).catchError((e) {
       print(e.toString());
       emit(RegisterErrorState(e.toString()));
     });
   }
-  
+
   //for register
   //VisiablityIconState
-    bool isvisiable=false;
-    IconData icon= Icons.visibility;
-    void ChangeVisiablityIcon(){
-       if(isvisiable) 
-       {
-        icon=Icons.visibility_off;
-        isvisiable=!isvisiable; //false
-       }
-       else{
-        icon= Icons.visibility;
-        isvisiable=!isvisiable;
-       }
-       emit(RsgisterVisiablityIconState ());
+  bool isvisiable = false;
+  IconData icon = Icons.visibility;
+  void ChangeVisiablityIcon() {
+    if (isvisiable) {
+      icon = Icons.visibility_off;
+      isvisiable = !isvisiable; //false
+    } else {
+      icon = Icons.visibility;
+      isvisiable = !isvisiable;
     }
-
+    emit(RsgisterVisiablityIconState());
+  }
 }

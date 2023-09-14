@@ -5,14 +5,12 @@ class dio_helper {
   static late Dio dio;
   static init() {
     // dio?.options.headers['Authorization'] = 'f96edd43fbc848b69a17ab04fec81381';
-    dio = Dio(BaseOptions(
+    dio = Dio(
+      BaseOptions(
         baseUrl: 'https://student.valuxapps.com/api/',
         receiveDataWhenStatusError: true,
-        // headers: {         ❌ "remove and use it get & post data" 
-        //   //const header
-        //   'Content-Type': 'application/json',
-        // }
-        ));
+      ),
+    );
   }
 
   static Future<Response?> getData({

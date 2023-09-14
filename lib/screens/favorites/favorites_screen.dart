@@ -1,12 +1,10 @@
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shop_app/models/get_favorites_model.dart';
 import 'package:shop_app/shared/cubit/ShopCubit.dart';
 import 'package:shop_app/shared/cubit/ShopState.dart';
-import 'package:shop_app/models/getFavoritesModel.dart';
+import 'package:shop_app/shared/image_manegar.dart';
 import 'package:shop_app/shared/styles/constColors.dart';
-import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
-
 
 class favorites_screen extends StatelessWidget {
   const favorites_screen({super.key});
@@ -14,55 +12,51 @@ class favorites_screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<shopCubit, shopState>(
-      listener: (context, state) {
-        // TODO: implement listener
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        var getFavoritesModel = shopCubit.get(context).getFavoritesModel;
-        // late var homeModel = shopCubit.get(context).homeModel;
-        var cubit = shopCubit.get(context);
+        shopCubit cubit = shopCubit.get(context);
         return Scaffold(
-            body: ListView.separated(
-                itemBuilder: (context, index) {
-                  return buildFavItems(context, getFavoritesModel, index, cubit);
-                },
-                separatorBuilder: (context, index) => SizedBox(height: 1),
-                itemCount:getFavoritesModel!=null? getFavoritesModel.data!.data!.length:0));
+          body: cubit.getAllFavorite.isNotEmpty
+              ? ListView.separated(
+                  itemBuilder: (context, index) {
+                    FavoriteModel favoriteModel = cubit.getAllFavorite[index];
+                    return _buildFavItems(context, favoriteModel);
+                  },
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 1),
+                  itemCount: cubit.getAllFavorite.length,
+                )
+              : const Center(child: Text("No Favorites")),
+        );
       },
     );
   }
 
-  Padding buildFavItems(
-    BuildContext context,
-    GetFavoritesModel? getFavoritesModel,
-   dynamic index,
-    shopCubit cubit,
-  ) {
-    var product = getFavoritesModel?.data!.data![index].product;
+  Widget _buildFavItems(BuildContext context, FavoriteModel model) {
     return Padding(
       padding: const EdgeInsets.all(15.0),
-      child: Container(
+      child: SizedBox(
         height: 120,
         child: Row(
-          // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Container(
+              child: SizedBox(
                 height: 120,
                 child: Stack(
                   alignment: Alignment.bottomLeft,
                   children: [
                     Image(
-                      image: NetworkImage(product!.image.toString()),
+                      image: NetworkImage(model.product.image.toString() ??
+                          ImgManager.defaultImage),
 
                       width: MediaQuery.of(context).size.width * 0.4,
                       height:
                           MediaQuery.of(context).size.height, //120 container
                     ),
-                    if (product.discount != 0)
+                    if (model.product.discount != 0)
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 5),
-                        color: Color.fromARGB(255, 219, 65, 30),
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        color: const Color.fromARGB(255, 219, 65, 30),
                         child: const Text(
                           'Discount',
                           style: TextStyle(color: Colors.white, fontSize: 16),
@@ -72,10 +66,10 @@ class favorites_screen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
-            Container(
+            SizedBox(
               width: MediaQuery.of(context).size.width * 0.4,
               height: MediaQuery.of(context).size.height,
               // height: 200,
@@ -86,7 +80,7 @@ class favorites_screen extends StatelessWidget {
                 children: [
                   Text(
                       //_product.name.toString(),
-                      product.name.toString(),
+                      model.product.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       //textAlign: TextAlign.center,
@@ -94,12 +88,12 @@ class favorites_screen extends StatelessWidget {
                         fontSize: 16,
                         height: 1.4,
                       )),
-                  Spacer(),
+                  const Spacer(),
                   Expanded(
                     child: Row(
                       children: [
                         Text(
-                          product.price!.round().toString(),
+                          model.product.price.toString(),
                           style: TextStyle(color: baseColor, fontSize: 14),
                         ),
                         const SizedBox(
@@ -107,7 +101,7 @@ class favorites_screen extends StatelessWidget {
                         ),
                         if (1 != 0)
                           Text(
-                            product.oldPrice!.round().toString(),
+                            model.product.oldPrice.toString(),
                             style: const TextStyle(
                               color: Color.fromARGB(255, 77, 98, 109),
                               fontSize: 12,
@@ -119,19 +113,23 @@ class favorites_screen extends StatelessWidget {
                           radius: 22.0,
                           backgroundColor: Colors.grey[300],
                           child: IconButton(
-                              onPressed: () {
-                                print("fav clicked!");
-
-                                cubit.ChangeToFavorites(productId: product.id);
-                                // print();
-                              },
-                              icon: Icon(
-                                Icons.favorite,
-                                color: (cubit.favoriteMap[product.id]!)
-                                    ? Color.fromARGB(255, 219, 65, 30)
-                                    : Colors.white,
-                                size: 18,
-                              )),
+                            onPressed: () {
+                              print("fav clicked!");
+                              BlocProvider.of<shopCubit>(context)
+                                  .ChangeToFavorites(
+                                      productId: model.product.id);
+                              //  cubit.ChangeToFavorites(productId: product.id);
+                              // print();
+                            },
+                            icon: Icon(
+                              Icons.favorite,
+                              color: (BlocProvider.of<shopCubit>(context)
+                                      .favoriteMap[model.product.id]!)
+                                  ? const Color.fromARGB(255, 219, 65, 30)
+                                  : Colors.white,
+                              size: 18,
+                            ),
+                          ),
                         )
                       ],
                     ),

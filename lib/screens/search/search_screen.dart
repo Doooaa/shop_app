@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shop_app/models/search_model.dart';
+import 'package:shop_app/screens/search/searchCubit/searchCubit.dart';
+import 'package:shop_app/screens/search/searchCubit/searchState.dart';
 import 'package:shop_app/shared/cubit/ShopCubit.dart';
 import 'package:shop_app/shared/cubit/ShopState.dart';
 import 'package:shop_app/shared/styles/constColors.dart';
-import 'package:shop_app/screens/search/searchCubit/searchCubit.dart';
-import 'package:shop_app/screens/search/searchCubit/searchState.dart';
 
 class Search_screen extends StatelessWidget {
+  const Search_screen({super.key});
+
   @override
   Widget build(BuildContext context) {
     SearchModel? Model;
     List<Product> list = [];
-    var _controller = TextEditingController();
+    var controller = TextEditingController();
     return BlocProvider(
       create: (context) => SearchShopCubit(),
       child: BlocConsumer<shopCubit, shopState>(
@@ -51,7 +53,7 @@ class Search_screen extends StatelessWidget {
                       // ),
                       TextField(
                         style: Theme.of(context).textTheme.bodyMedium, //
-                        controller: _controller,
+                        controller: controller,
                         decoration: const InputDecoration(
                           fillColor: Colors.white,
                           label: Text('search'),
@@ -64,7 +66,7 @@ class Search_screen extends StatelessWidget {
                         },
                       ),
 
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Expanded(
@@ -73,8 +75,8 @@ class Search_screen extends StatelessWidget {
                           return buildProductItems(context, list, index, cubit);
                         },
                         separatorBuilder: (context, index) =>
-                            SizedBox(height: 1),
-                        itemCount: list.length != 0 ? list.length : 0,
+                            const SizedBox(height: 1),
+                        itemCount: list.isNotEmpty ? list.length : 0,
                       ))
                     ],
                   ),
@@ -98,13 +100,13 @@ class Search_screen extends StatelessWidget {
       onTap: () {},
       child: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: Container(
+        child: SizedBox(
           height: 120,
           child: Row(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Container(
+                child: SizedBox(
                   height: 120,
                   child: Stack(
                     alignment: Alignment.bottomLeft,
@@ -124,8 +126,8 @@ class Search_screen extends StatelessWidget {
                               .discount !=
                           0)
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 5),
-                          color: Color.fromARGB(255, 219, 65, 30),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          color: const Color.fromARGB(255, 219, 65, 30),
                           child: const Text(
                             'Discount',
                             style: TextStyle(color: Colors.white, fontSize: 16),
@@ -135,10 +137,10 @@ class Search_screen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 20,
               ),
-              Container(
+              SizedBox(
                 width: MediaQuery.of(context).size.width * 0.4,
                 height: MediaQuery.of(context).size.height,
                 // height: 200,
@@ -157,7 +159,7 @@ class Search_screen extends StatelessWidget {
                           fontSize: 16,
                           height: 1.4,
                         )),
-                    Spacer(),
+                    const Spacer(),
                     Expanded(
                       child: Row(
                         children: [
@@ -175,10 +177,8 @@ class Search_screen extends StatelessWidget {
                             child: IconButton(
                                 onPressed: () {
                                   print("fav clicked!");
-
-                                  shopCubit
-                                      .get(context)
-                                      .ChangeToFavorites(productId: product.id);
+                                  shopCubit.get(context).ChangeToFavorites(
+                                      productId: product.id!);
                                   shopCubit
                                       .get(context)
                                       .favoriteMap[product.id];
@@ -187,9 +187,9 @@ class Search_screen extends StatelessWidget {
                                 icon: Icon(
                                   Icons.favorite,
                                   color: (shopCubit
-                                              .get(context)
-                                              .favoriteMap[product.id] !)
-                                      ? Color.fromARGB(255, 219, 65, 30)
+                                          .get(context)
+                                          .favoriteMap[product.id]!)
+                                      ? const Color.fromARGB(255, 219, 65, 30)
                                       : Colors.white,
                                   size: 18,
                                 )),
